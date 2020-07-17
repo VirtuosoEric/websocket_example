@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Flask-SocketIO Test</title>
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+        var socket = io.connect();
+
+        socket.on('connect', function() {
+            socket.emit('my_event', {data: 'connected!'});
+        })
+
+        socket.on('my_response', function(msg) {
+            $('#my_value').text('My Value #' + ': ' + msg.data);
+        });
+
+        socket.on('connect', function() {
+            socket.emit('connect_event', {data: 'hello!'});
+        })
+
+        socket.on('server_response', function(msg) {
+            $('#log').text('send from server #' + ': ' + msg.data);
+        });
+
+        
+
+        $('form#emit').submit(function(event) {
+                socket.emit('client_event', {data: $('#emit_data').val()});
+                return false;
+            });
+    });
+
+    
+    </script>   
+</head>
+<body>
+    <h2>WebSokect</h2>
+    <h3>type start to receive data</h3>
+    <h3>type end to stop receiving data</h3>
+    <form id="emit" method="POST" action='#'>
+        <input type="text" name="emit_data" id="emit_data" placeholder="Message">
+        <input type="submit" value="send">
+        <!-- <input type="submit" value="end"> -->
+    </form>
+    <h1 id='log'>hhhhhh</h1>
+    <h1 id='my_value'>yooooo</h1>
+    <!-- <div id='log'></div> -->
+</body>
+</html>
