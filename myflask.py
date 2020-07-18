@@ -2,11 +2,13 @@
 from flask import Flask, render_template, session, request, flash
 from flask_socketio import SocketIO, emit 
 from random import random
-import time
-app = Flask(__name__, template_folder='./')
-app.config['SECRET_KEY'] = 'secret!'
+import time, eventlet
 
-socketio = SocketIO(app)
+
+app = Flask(__name__, static_folder='static')
+app.config['SECRET_KEY'] = 'secret!'
+eventlet.monkey_patch() 
+socketio = SocketIO(app,async_mode = 'eventlet')
 
 my_value = 5278
 
@@ -18,12 +20,11 @@ def index():
 def client_msg(msg):
     while True:
         if (msg['data']=='start'):
-            time.sleep(2)
             emit('server_response', {'data': random()})
         if (msg['data']=='end'):
-            # time.sleep(1)
             emit('server_response', {'data': 'end'})
             flash
+        time.sleep(1)
 
 @socketio.on('connect_event')
 def connected_msg(msg):
@@ -35,6 +36,7 @@ def new_msg(msg):
     print 'my event triggered'
     while True:
         emit('my_response',{'data':my_value})
+        time.sleep(1)
 
 @app.route('/update')
 def update():
@@ -44,4 +46,4 @@ def update():
     return 'success'
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0')
+    socketio.run(app, debug=True, host='0.0.0.0')
